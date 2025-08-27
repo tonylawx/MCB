@@ -1,0 +1,95 @@
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: mcb-postgres
+    environment:
+      # Database configuration
+      POSTGRES_DB: mcb_db
+      POSTGRES_USER: mcb_user
+      POSTGRES_PASSWORD: mcb_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      # Data persistence - store data in local volumes
+      - postgres_data:/var/lib/postgresql/data
+      # Initialization script directory (if needed)
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - mcb-network
+    healthcheck:
+      # Health check to ensure database is ready
+      test: ["CMD-SHELL", "pg_isready -U mcb_user -d mcb_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend Application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mcb-backend
+    environment:
+      # Database connection configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mcb_db
+      SPRING_DATASOURCE_USERNAME: mcb_user
+      SPRING_DATASOURCE_PASSWORD: mcb_password
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # JWT configuration
+      JWT_SECRET: mcb-jwt-secret-key-for-development-only-change-in-production
+      JWT_EXPIRATION: 86400000
+      
+      # Application configuration
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - mcb-network
+    volumes:
+      # Development mode: mount logs directory
+      - ./logs:/app/logs
+    healthcheck:
+      # Health check using Spring Boot Actuator
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # pgAdmin - PostgreSQL management tool (optional, for development debugging)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mcb-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mcb.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - mcb-network
+    profiles:
+      # Only start in dev profile
+      - dev
+
+# Volume definitions
+volumes:
+  postgres_data:
+    driver: local
+
+# Network definitions
+networks:
+  mcb-network:
+    driver: bridge
+
+# Quick start configuration for development environment
+# Usage:
+# Production environment: docker-compose up -d
+# Development environment (including pgAdmin): docker-compose --profile dev up -d

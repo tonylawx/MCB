@@ -1,0 +1,42 @@
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+docs/
+
+# Tests (keeping test source code for build)
+# test results but not test source
+target/surefire-reports/
+target/failsafe-reports/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*

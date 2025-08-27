@@ -1,2 +1,41 @@
+# IDE
 .idea
 .vscode
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+
+# Database data
+database/data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Node.js (for frontend)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env.local
+frontend/.env.production.local
+
+# Temporary files
+*.tmp
+*.temp

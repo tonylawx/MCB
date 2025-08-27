@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose:*)",
+      "Bash(docker:*)",
+      "Bash(curl:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\c\\Users\\56437\\Desktop"
+    ]
+  }
+}

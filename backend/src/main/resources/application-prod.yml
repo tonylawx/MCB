@@ -1,0 +1,62 @@
+# Production environment configuration
+
+spring:
+  # Database configuration - Production PostgreSQL
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mcb_prod}
+    username: ${DATABASE_USERNAME:mcb_prod_user}
+    password: ${DATABASE_PASSWORD:change-this-password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Production environment connection pool configuration
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      leak-detection-threshold: 60000
+      pool-name: McbHikariCP-Prod
+      
+  # Flyway configuration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
+    
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+# JWT configuration - must read from environment variables
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000} # Production environment 1 hour
+
+# Security configuration
+security:
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:https://yourdomain.com}
+
+# Logging configuration - Production environment
+logging:
+  level:
+    root: WARN
+    com.mcb: INFO
+    org.mybatis: WARN
+    org.springframework.security: WARN
+  file:
+    name: /app/logs/mcb-backend.log
+    max-size: 100MB
+    max-history: 30
+
+# Actuator - minimal exposure for production environment
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

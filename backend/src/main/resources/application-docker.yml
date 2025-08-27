@@ -1,0 +1,51 @@
+# Docker environment configuration
+
+spring:
+  # Database configuration - PostgreSQL in Docker Compose
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/mcb_db}
+    username: ${SPRING_DATASOURCE_USERNAME:mcb_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:mcb_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Docker environment connection pool configuration
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      pool-name: McbHikariCP-Docker
+      
+  # Flyway database migration configuration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+# JWT configuration - read from environment variables
+jwt:
+  secret: ${JWT_SECRET:mcb-docker-jwt-secret-key-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Security configuration
+security:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://frontend:3000
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
